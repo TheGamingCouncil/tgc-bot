@@ -1,6 +1,6 @@
 {
   "version": "0.0.1",
-  "name": "The Gaming Council Discord Bot",
+  "name": "TheGamingCouncilDiscordBot",
   "dependencies": {
     "command-daemon": "0.0.10",
     "discord.js": "^11.4.2",
