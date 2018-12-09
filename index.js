@@ -65,7 +65,7 @@ class TGCBot{
       channel.send( message );
     }
     else{
-      console.log( channel );
+      //console.log( channel );
     }
   }
 
