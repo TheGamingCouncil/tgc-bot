@@ -1,0 +1,8 @@
+{
+  "version": "0.0.1",
+  "name": "The Gaming Council Discord Bot",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "node-opus": "^0.3.1"
+  }
+}
