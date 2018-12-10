@@ -1,0 +1,99 @@
+{
+  "food" : [
+    "cookies",
+    "chicken",
+    "chocolate",
+    "soup",
+    "candy"
+  ],
+  "personal" : [
+    "friend",
+    "sister",
+    "bot",
+    "brother",
+    "wife",
+    "husband"
+  ],
+  "title" : [
+    "special",
+    "beautiful",
+    "funny",
+    "real"
+  ],
+  "statements" : {
+    "I" : {
+      "have" : [
+        "the {food}!",
+        "{food}!",
+        "the {food}, would you like one?"
+      ],
+      "think" : [
+        "you are {title}.",
+        "I need another {personal}.",
+        "you're just about ready now.",
+        "I don't have enough to say."
+      ],
+      "knew" : [
+        "you would come back to me.",
+        "we had something {title} here.",
+        "about your arival, the prophecy foretold it."
+      ],
+      "just" : [
+        "love when new people come by.",
+        "spat my milk all over my screen.",
+        "think in beeps and bleps."
+      ]
+    },
+    "We" : {
+      "are" : [
+        "The Gaming Council!",
+        "so happy to see you joined discord.",
+        "having fun, are you?"
+      ],
+      "do" : [
+        "what ever we can to help.",
+        "our best to make your life easy!",
+        "fun things with fun people."
+      ],
+      "have" : [
+        "lots of {food}.",
+        "to get out of here.",
+        "play a game sometime."
+      ]
+    },
+    "Our" : {
+      "style" : [
+        "is one that is unqiue and vague.",
+        "can beat everyone elses style.",
+        "is now known to you."
+      ],
+      "best" : [
+        "people are your best people.",
+        "times are still to be had.",
+        "players can't compare."
+      ],
+      "robot" : [
+        "greet you. Hi....",
+        "do something funny.... Yeah I got nothing.",
+        "be your best follower."
+      ]
+    },
+    "Let" : {
+      "this" : [
+        "be a warning, or maybe just a splash.",
+        "bring us all together!",
+        "start our party."
+      ],
+      "us" : [
+        "win one for you.",
+        "help when we can.",
+        "be your neighbor."
+      ],
+      "the" : [
+        "worlds collide.",
+        "fun begin.",
+        "hive-mind attack."
+      ]
+    }
+  }
+}
