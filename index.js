@@ -70,8 +70,8 @@ class TGCBot{
   }
 
   _OnNewMember(){
-    const newMemberSnapy = this.SaySnappyQuote();
     this.client.on( "guildMemberAdd", member => {
+      const newMemberSnapy = this.SaySnappyQuote();
       if( this.welcomeList.filter( x => x === member.user.id ).length === 0 ){
         this.welcomeList.push( member.user.id );
         this.WriteMessage( "social-lobby", `Welcome <@${member.user.id}>! ${newMemberSnapy}` );
