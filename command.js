@@ -30,34 +30,46 @@ module.exports = class Command{
     });
   }
 
-  ValidateList( user, messageCommand, field, fieldName, list ){
+  ValidateList( field, fieldName, list ){
     if( list.indexOf( field ) === -1 ){
-      this.bot._ServerReply( user, `Invalid command argument issued '${messageCommand}':${fieldName}[${field}] supported - ${list.join( ',' )}` );
+      this.ServerReply( `Invalid command argument issued '${this.command}':${fieldName}[${field}] supported - ${list.join( ',' )}` );
       return false;
     }
 
     return true;
   }
 
-  ValidateValue( user, messageCommand, field, fieldName, validation ){
+  ValidateValue( field, fieldName, validation, friendly ){
     if( field.match( validation ) === null ){
-      this.bot._ServerReply( user, `Invalid command argument issued '${messageCommand}':${fieldName}[${field}] supported - ${validation}` );
+      this.ServerReply( `Invalid command argument issued '${this.command}':${fieldName}[${field}] supported - ${friendly}` );
       return false;
     }
     
     return true;
   }
 
-  async ServerReply( message, decayTimer = 30000 ){
-    const reply = await this.user.send( "```" + message + ".```\n\n```This message will self destruct in " + ( decayTimer / 1000 ) + " seconds.```" );
-    this.bot.timers.AddDBTimer( "DeleteDM", new Date().getTime() + decayTimer, { userId : this.user.id, messageId : reply.id } );
+  ServerReply( message, decayTimer = 30000 ){
+    this.bot.DmUser( this.user, message, decayTimer );
   }
 
-  AssetRoles( roles ){
-    
+  AssertRoles( roles ){
+    const userRoles = this.message.member.roles.map( x => x.name );
+    if( roles.filter( x => userRoles.indexOf( x ) === -1 ).length === 0 ){
+      return true;
+    }
+    else{
+      this.ServerReply( `Invalid role for command issued '${this.command}'`  );
+      return false;
+    }
   }
 
-  AssetChannels( channels ){
-
+  AssertChannels( channels ){
+    if( channels.filter( x => x === this.message.channel.name ).length > 0 ){
+      return true;
+    }
+    else{
+      this.ServerReply( `Invalid channel for command issued '${this.command}':'${this.message.channel.name}'`  );
+      return false;
+    }
   }
 };

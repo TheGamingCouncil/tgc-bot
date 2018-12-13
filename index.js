@@ -25,22 +25,6 @@ client.on("ready", async () => {
   const tgcBot = new TGCBot( client, db, tgcTimers );
   await tgcBot.PerformSetup();
   tgcTimers.StartTimerSystem();
-
-  //tgcBot.UpdateAllEvents();
-
-  //const user = tgcBot.GetUserByName( "navstev0" );
-  //console.log( user );
-
-  //console.log( tgcBot.client.users.filter( x => x.username === "navstev0" ).array()[0] );
-
-  //const dmChannel = await tgcBot.client.users.filter( x => x.username === "navstev0" ).array()[0].createDM();
-  //console.log( ( await dmChannel.fetchMessages() ).array().forEach( x => x.delete() ) );
-
-  //console.log( tgcBot.client.guilds.array()[0].members.filter( x => x.user.username === "navstev0" ).array()[0].user.dmChannel );
-
-  //tgcBot.WriteMessage( "bot-trashbox", "at test <@183450121642573834>" );
-  //let message = await tgcBot.WriteMessage( "social-lobby", `Beep beep` );
-  //tgc createEvent "My Event" "my super special event" monday 11:30 0 1 1 2 false
 });
 
 
