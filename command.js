@@ -10,8 +10,8 @@ module.exports = class Command{
   }
 
   ExtractArguments( args ){
-    const quoteMatches = args.match( /\"[A-z\d_\- ]+\"/gi ) || [];
-    const squoteMatches = args.match( /\'[A-z\d_\- ]+\'/gi ) || [];
+    const quoteMatches = args.match( /\"[A-z\d_\- ,\.;:?&!#@%*()\[\]{}+=|/\\']+\"/gi ) || [];
+    const squoteMatches = args.match( /\'[A-z\d_\- ,\.;:?&!#@%*()\[\]{}+=|/\\"]+\]+\'/gi ) || [];
     quoteMatches.forEach( ( x, index ) => args = args.replace( x, "%q" + index ) );
     squoteMatches.forEach( ( x, index ) => args = args.replace( x, "%s" + index ) );
     const realArgs = args.split( " " );
