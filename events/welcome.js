@@ -31,7 +31,7 @@ module.exports = class Welcome extends Event{
 
   _OnNewMember(){
     this.client.on( "guildMemberAdd", member => {
-      const newMemberSnapy = this.SaySnappyQuote();
+      const newMemberSnapy = this._SaySnappyQuote();
       if( this.welcomeList.filter( x => x === member.user.id ).length === 0 ){
         this.welcomeList.push( member.user.id );
         this.WriteMessage( "social-lobby", `Welcome <@${member.user.id}>! ${newMemberSnapy}` );
