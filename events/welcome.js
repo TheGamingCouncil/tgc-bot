@@ -1,10 +1,11 @@
 const Event = require( "../abstract/event" );
 const quotes = require( "../data/things-to-say" );
 
+const welcomeList = [];
+
 module.exports = class Welcome extends Event{
 
   async Init(){
-    this.welcomeList = [];
   }
 
   _SaySnappyQuote(){
@@ -31,10 +32,10 @@ module.exports = class Welcome extends Event{
 
   async Exec( bot, member ){
     const newMemberSnapy = this._SaySnappyQuote();
-    if( this.welcomeList.filter( x => x === member.user.id ).length === 0 ){
-      this.welcomeList.push( member.user.id );
+    if( welcomeList.filter( x => x === member.user.id ).length === 0 ){
+      welcomeList.push( member.user.id );
       bot.WriteMessage( "social-lobby", `Welcome <@${member.user.id}>! ${newMemberSnapy}` );
-      setTimeout( () => this.welcomeList.splice( this.welcomeList.indexOf( member.user.id ), 1 ), 30000 );
+      setTimeout( () => welcomeList.splice( welcomeList.indexOf( member.user.id ), 1 ), 60000 * 2 );
     }
   }
 
