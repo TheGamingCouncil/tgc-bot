@@ -5,10 +5,12 @@ module.exports = class Database{
   constructor( dbHost, dbName ){
     this.dbHost = dbHost;
     this.dbName = dbName;
+    this.connected = false;
   }
 
   async Connect(){
     this.db = await this._ConnectToDatabaseMongo();
+    this.connected = true;
   }
 
   Collection( collectionName ){

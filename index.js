@@ -11,10 +11,12 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 
 client.on( "error", console.error );
-client.on("ready", async () => {
 
-  const db = new Database( config.dbHost, "tgc" );
-  await db.Connect();
+const db = new Database( config.dbHost, "tgc" );
+const tgcTimers = new TGCTimers( client, db );
+const tgcBot = new TGCBot( client, db, tgcTimers );
+
+client.on("ready", async () => {
 
   // This event will run if the bot starts, and logs in, successfully.
   console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
@@ -22,10 +24,12 @@ client.on("ready", async () => {
   // docs refer to as the "ClientUser".
   client.user.setActivity( `Waiting for commands` );
 
-  const tgcTimers = new TGCTimers( client, db );
-  const tgcBot = new TGCBot( client, db, tgcTimers );
-  await tgcBot.PerformSetup();
-  tgcTimers.StartTimerSystem();
+  if( !db.connected ){
+    await db.Connect();
+    await tgcBot.PerformSetup();
+    tgcTimers.StartTimerSystem();
+  }
+  
 });
 
 
