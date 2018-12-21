@@ -13,8 +13,6 @@ const client = new Discord.Client();
 client.on( "error", console.error );
 
 const db = new Database( config.dbHost, "tgc" );
-const tgcTimers = new TGCTimers( client, db );
-const tgcBot = new TGCBot( client, db, tgcTimers );
 
 client.on("ready", async () => {
 
@@ -26,6 +24,8 @@ client.on("ready", async () => {
 
   if( !db.connected ){
     await db.Connect();
+    const tgcTimers = new TGCTimers( client, db );
+    const tgcBot = new TGCBot( client, db, tgcTimers );
     await tgcBot.PerformSetup();
     tgcTimers.StartTimerSystem();
   }
