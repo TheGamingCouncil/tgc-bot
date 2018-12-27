@@ -14,7 +14,7 @@ module.exports = class Help extends Command{
     
     let user = command.message.mentions.users.array()[0] || null;
     if( user !== null ){
-      command.message.channel.send( `${command.user.id} welcomes ${user.id}`)
+      command.message.channel.send( `<@${command.user.id}> welcomes <@${user.id}>`)
     }
     
   }
