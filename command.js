@@ -48,27 +48,31 @@ module.exports = class Command{
     return true;
   }
 
-  ServerReply( message, decayTimer = 30000 ){
-    this.bot.DmUser( this.user, message, decayTimer );
+  ServerReply( message, decayTimer = 30000, customFormatting = false ){
+    this.bot.DmUser( this.user, message, decayTimer, customFormatting );
   }
 
-  AssertRoles( roles ){
+  AssertRoles( roles, informUserOfBadValue = true ){
     const userRoles = this.message.member.roles.map( x => x.name );
     if( roles.filter( x => userRoles.indexOf( x ) === -1 ).length === 0 ){
       return true;
     }
     else{
-      this.ServerReply( `Invalid role for command issued '${this.command}'`  );
+      if( informUserOfBadValue ){
+        this.ServerReply( `Invalid role for command issued '${this.command}'`  );
+      }
       return false;
     }
   }
 
-  AssertChannels( channels ){
+  AssertChannels( channels, informUserOfBadValue = true ){
     if( channels.filter( x => x === this.message.channel.name ).length > 0 ){
       return true;
     }
     else{
-      this.ServerReply( `Invalid channel for command issued '${this.command}':'${this.message.channel.name}'`  );
+      if( informUserOfBadValue ){
+        this.ServerReply( `Invalid channel for command issued '${this.command}':'${this.message.channel.name}'`  );
+      }
       return false;
     }
   }

@@ -240,8 +240,23 @@ module.exports = class Events extends Command{
   }
 
   async updateEvent( command, tag ){
+    
     if( command.AssertRoles( [ "Event Coordinator" ] ) ){
       command.ServerReply( `Event updates are still a work in progress.`  );
+    }
+  }
+
+  async updateEventDescription( command, tag, newDescription ){
+    if( command.AssertRoles( [ "Event Coordinator" ] ) ){
+      let eventDetails = (await this.eventDb.Find( { tag } ))[0] || null;
+      if( eventDetails !== null ){
+        await this.eventDb.Update( { _id : eventDetails._id }, { $set : { text : newDescription }} );
+        command.ServerReply( `Event description was updated for ${eventDetails.name}.` );
+        this._UpdateEventPost( eventDetails );
+      }
+      else{
+        command.ServerReply( `Event not found ${id}.` );
+      }
     }
   }
 

@@ -72,8 +72,15 @@ module.exports = class TGCBot{
     }
   }
 
-  async DmUser( user, message, decayTimer = 30000 ){
-    const reply = await user.send( "```" + message + ".```\n\n```This message will self destruct in " + ( decayTimer / 1000 ) + " seconds.```" );
+  async DmUser( user, message, decayTimer = 30000, customFormatting = false ){
+    let reply = null;
+    if( customFormatting ){
+      reply = await user.send( message );
+    }
+    else{
+      reply = await user.send( "```" + message + ".```\n\n```This message will self destruct in " + ( decayTimer / 1000 ) + " seconds.```" );
+    }
+    
     this.timers.AddDBTimer( "DeleteDM", new Date().getTime() + decayTimer, { userId : user.id, messageId : reply.id } );
   }
 
