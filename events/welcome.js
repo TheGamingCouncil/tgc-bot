@@ -1,5 +1,5 @@
 const Event = require( "../abstract/event" );
-const quotes = require( "../data/things-to-say" );
+//const quotes = require( "../data/things-to-say" );
 
 const welcomeList = [];
 
@@ -8,8 +8,8 @@ module.exports = class Welcome extends Event{
   async Init(){
   }
 
-  _SaySnappyQuote(){
-    let openers = Object.keys( quotes.statements );
+  async _SaySnappyQuote(){
+    /*let openers = Object.keys( quotes.statements );
     let openerIndex = Math.floor(Math.random() * openers.length );
     let opener = openers[openerIndex];
     let swiches = Object.keys( quotes.statements[opener] );
@@ -26,12 +26,17 @@ module.exports = class Welcome extends Event{
       } );
     }
 
-    return fullQuote;
-    
+    return fullQuote;*/
+
+    const optionChannel = this.bot.GetChannelByName( "bot-sayings" );
+    await optionChannel.fetchMessages();
+    const allMessages = optionChannel.messages.array();
+    const message = allMessages[Math.floor(Math.random() * allMessages.length )];
+    return message.content;
   }
 
   async Exec( bot, member ){
-    const newMemberSnapy = this._SaySnappyQuote();
+    const newMemberSnapy = await this._SaySnappyQuote();
     if( welcomeList.filter( x => x === member.user.id ).length === 0 ){
       welcomeList.push( member.user.id );
       bot.WriteMessage( "social-lobby", `Welcome <@${member.user.id}>! ${newMemberSnapy}` );
