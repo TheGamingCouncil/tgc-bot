@@ -132,7 +132,6 @@ module.exports = class AuditSystem{
   async CreateUserRecord( member ){
     const userData = await this.memberAudits.FindOne( { userId : member.user.id } );
     if( userData === null ){
-      console.log( "creating user" );
       const post = await this.bot.WriteMessage( "member-audits", `Creating audit record...` );
       await this.memberAudits.Insert( {
         userId : member.user.id,
