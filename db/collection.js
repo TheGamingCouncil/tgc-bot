@@ -19,6 +19,10 @@ module.exports = class Collection{
     });
   }
 
+  async FindOne( selector = {}, options = {} ){
+    return ( await this.Find( selector, options ) )[0] || null;
+  }
+
   Update( selector, document, options = {} ) {
     return new Promise( ( resolve, reject ) => {
       this.collection.updateOne( selector, document, options, ( err, result ) => {

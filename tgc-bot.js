@@ -1,21 +1,24 @@
 const commands = require( './commands' );
 const events = require( './events' );
+const AuditSystem = require( "./audit-system" );
 
 module.exports = class TGCBot{
   constructor( client, db, timers ){
     this.db = db;
+    this.audit = new AuditSystem( this, this.db );
     this.timers = timers;
     this.client = client;
     this.events = [];
     this.compiledCommands = [];
     this.commands = {};
     this.welcomeList = [];
-    
   }
 
   async PerformSetup(){
+    await this.audit.InitAudits();
     await this._SetupCommands();
     await this._SetupEvents();
+    await this.SuperFetch( this.GetChannelByName( "bot-sayings" ), 1000 );
     console.log( "Event system is setup and running!" );
   }
 
@@ -60,6 +63,24 @@ module.exports = class TGCBot{
 
   GetUserById( id ){
     return this.client.users.filter( x => x.id === id ).array()[0] || null;
+  }
+
+  // fetch more messages just like Discord client does
+  async SuperFetch(channel, limit) {
+    // message cache is sorted on insertion
+    // channel.messages[0] will get oldest message
+    let messages = channel.messages.array();
+    let eof = false;
+    while( messages.length < limit && !eof ){
+      let before = channel.messages.lastKey();
+      let newMessages = await channel.fetchMessages( { limit : 100, before } );
+      if( newMessages.array().length === 0 ){
+        eof = true;
+      }
+      messages = channel.messages.array();
+    }
+    
+    return messages;
   }
 
   async WriteMessage( channel, message ){

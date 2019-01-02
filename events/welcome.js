@@ -29,19 +29,24 @@ module.exports = class Welcome extends Event{
     return fullQuote;*/
 
     const optionChannel = this.bot.GetChannelByName( "bot-sayings" );
-    await optionChannel.fetchMessages();
+    await this.bot.SuperFetch( optionChannel, 1000 );
     const allMessages = optionChannel.messages.array();
     const message = allMessages[Math.floor(Math.random() * allMessages.length )];
     return message.content;
   }
 
+
+
   async Exec( bot, member ){
+    let userAuditRecord = await this.bot.audit.GetUserRecord( member.user.id );
     const newMemberSnapy = await this._SaySnappyQuote();
     if( welcomeList.filter( x => x === member.user.id ).length === 0 ){
       welcomeList.push( member.user.id );
-      bot.WriteMessage( "social-lobby", `Welcome <@${member.user.id}>! ${newMemberSnapy}` );
+      bot.WriteMessage( "social-lobby", `Welcome${userAuditRecord !== null ? " BACK" : ""} <@${member.user.id}>! ${newMemberSnapy}` );
       setTimeout( () => welcomeList.splice( welcomeList.indexOf( member.user.id ), 1 ), 60000 * 2 );
     }
+
+    await this.bot.audit.CreateUserRecord( member );
   }
 
   get eventType(){
