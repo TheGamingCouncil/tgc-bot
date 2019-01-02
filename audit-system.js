@@ -32,7 +32,7 @@ module.exports = class AuditSystem{
       }
     }
 
-    this.UpdateRecords();
+    //this.UpdateRecords();
   }
 
   async UpdateUserState( memberState ){
@@ -61,8 +61,7 @@ module.exports = class AuditSystem{
       await this.memberAudits.Update( { _id : userData._id }, { $set :{
         voiceState : true,
         stateTimestamp : new Date(),
-        timeInAfk : addedSeconds + userData.timeInAfk,
-        dirty : true
+        timeInAfk : addedSeconds + userData.timeInAfk
       }});
     }
     else if( voiceIsOn && userData.voiceState !== "afk" && afk ){
@@ -70,8 +69,7 @@ module.exports = class AuditSystem{
       await this.memberAudits.Update( { _id : userData._id }, { $set :{
         voiceState : "afk",
         stateTimestamp : new Date(),
-        timeInVoice : addedSeconds + userData.timeInVoice,
-        dirty : true
+        timeInVoice : addedSeconds + userData.timeInVoice
       }});
     }
     else if( !voiceIsOn && userData.voiceState === "afk" ){
@@ -79,8 +77,7 @@ module.exports = class AuditSystem{
       await this.memberAudits.Update( { _id : userData._id }, { $set :{
         voiceState : false,
         stateTimestamp : new Date(),
-        timeInAfk : addedSeconds + userData.timeInAfk,
-        dirty : true
+        timeInAfk : addedSeconds + userData.timeInAfk
       }});
     }
     else if( !voiceIsOn && userData.voiceState === true ){
@@ -88,8 +85,7 @@ module.exports = class AuditSystem{
       await this.memberAudits.Update( { _id : userData._id }, { $set :{
         voiceState : false,
         stateTimestamp : new Date(),
-        timeInVoice : addedSeconds + userData.timeInVoice,
-        dirty : true
+        timeInVoice : addedSeconds + userData.timeInVoice
       }});
     }
   }
@@ -100,7 +96,7 @@ module.exports = class AuditSystem{
     if( userData.recentVoiceActivity.length > maxHistory ){
       userData.recentVoiceActivity.splice( 0, 1 );
     }
-    await this.memberAudits.Update( { _id : userData._id }, { $set : { recentVoiceActivity : userData.recentVoiceActivity, dirty : true, lastActive : new Date() }});
+    await this.memberAudits.Update( { _id : userData._id }, { $set : { recentVoiceActivity : userData.recentVoiceActivity, lastActive : new Date() }});
   }
 
   async AddRecentText( channelName, user ){
@@ -109,18 +105,14 @@ module.exports = class AuditSystem{
     if( userData.recentTextActivity.length > maxHistory ){
       userData.recentTextActivity.splice( 0, 1 );
     }
-    await this.memberAudits.Update( { _id : userData._id }, { $set : { recentTextActivity : userData.recentTextActivity, dirty : true, lastActive : new Date() }});
+    await this.memberAudits.Update( { _id : userData._id }, { $set : { recentTextActivity : userData.recentTextActivity, lastActive : new Date() }});
   }
 
   async ArchiveUserRecord( userId ){
     const userData = await this.memberAudits.FindOne( { userId } );
-    let channel = this.bot.GetChannelByName( "member-audits" );
-    let auditPost = await channel.fetchMessage( userData.auditPost );
-    await auditPost.delete();
 
     await this.memberAudits.Update( { _id : userData._id }, { $set : {
       archive : true,
-      auditPost : -1,
       leaveDate : new Date()
     } });
   }
@@ -132,11 +124,9 @@ module.exports = class AuditSystem{
   async CreateUserRecord( member ){
     const userData = await this.memberAudits.FindOne( { userId : member.user.id } );
     if( userData === null ){
-      const post = await this.bot.WriteMessage( "member-audits", `Creating audit record...` );
       await this.memberAudits.Insert( {
         userId : member.user.id,
         username : member.user.username + "#" + member.user.discriminator,
-        auditPost : post.id,
         archive : false,
         timeInVoice : 0,
         timeInAfk : 0,
@@ -146,18 +136,14 @@ module.exports = class AuditSystem{
         leaveDate : -1,
         recentVoiceActivity : [],
         recentTextActivity : [],
-        lastActive : 0,
-        dirty : true
+        lastActive : 0
       } );
     }
     else{
       if( userData.archive === true ){
-        const post = await this.bot.WriteMessage( "member-audits", `Creating audit record...` );
         await this.memberAudits.Update( { _id : userData._id }, { $set : {
           archive : false,
-          leaveDate : -1,
-          auditPost : post.id,
-          dirty : true
+          leaveDate : -1
         } } );
       }
     }
@@ -165,10 +151,10 @@ module.exports = class AuditSystem{
     await this.UpdateUserState( member );
   }
 
-  async UpdateRecords(){
+  /*async UpdateRecords(){
 
     //Active Records//
-    let activeUsers = await this.memberAudits.Find( { archive : false, dirty : true } );
+    let activeUsers = await this.memberAudits.Find( { archive : false } );
     let channel = this.bot.GetChannelByName( "member-audits" );
     for( let i = 0; i < activeUsers.length; i++ ){
       const user = activeUsers[i];
@@ -208,6 +194,6 @@ module.exports = class AuditSystem{
     //Archive Records//
 
     setTimeout( () => this.UpdateRecords(), updateFrequincy );
-  }
+  }*/
 }
 
