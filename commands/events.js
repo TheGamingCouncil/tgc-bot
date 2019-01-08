@@ -120,6 +120,7 @@ module.exports = class Events extends Command{
 
           const types = { Tanks : "tanks", Healers : "heals", DPS : "dps", "Any Role" : "anyRole" };
 
+          const signupHelp = [];
           Object.keys( types ).forEach( x => {
             if( eventDetails.groupSize[types[x]] > 0 ){
               let signups = [];
@@ -138,10 +139,20 @@ module.exports = class Events extends Command{
                 }
                 signups.push( ( i + 1 ) + ") " + userDetail );
               }
+              let commandType = " " + types[x];
+              if( commandType === " heals" ){
+                commandType = " healer";
+              }
+              if( commandType === " anyRole" ){
+                commandType = "";
+              }
+              signupHelp.push( "tgc signup " + eventDetails.tag + commandType );
               embed.addField( x + " Signups " + eventDetails.signups[types[x]].length + " of " + eventDetails.groupSize[types[x]], "```" + signups.join( "\n" ) + "```" )
             }
           });
           
+
+          embed.addField( "Command Help", "```" + signupHelp.join( "\n" ) + "\ntgc cancelSignup " + eventDetails.tag + "```")
           eventPost.edit( embed );
         }
         else{

@@ -13,6 +13,10 @@ module.exports = class AutoMod extends Event{
       await message.delete();
       bot.DmUser( message.author, `Attachments are not allowed to be posted in '${message.channel.name}'. Please post social attachments in 'crapbox', 'the-nerd-corner', 'post-your-pets', 'gallery', or 'thememelobby'` );
     }
+
+    if( !message.content.startsWith( "tgc" ) && message.channel.name === "guild-events" ){
+      await message.delete();
+    }
   }
 
   get eventType(){
