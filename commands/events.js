@@ -146,6 +146,9 @@ module.exports = class Events extends Command{
               if( commandType === " anyRole" ){
                 commandType = "";
               }
+              if( commandType === " tanks" ){
+                commandType = " tank";
+              }
               signupHelp.push( "tgc signup " + eventDetails.tag + commandType );
               embed.addField( x + " Signups " + eventDetails.signups[types[x]].length + " of " + eventDetails.groupSize[types[x]], "```" + signups.join( "\n" ) + "```" )
             }
