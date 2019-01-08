@@ -286,15 +286,28 @@ module.exports = class Events extends Command{
         if( role === "healer" ){
           role = "heals";
         }
+        if( role === "tank" ){
+          role = "tanks";
+        }
+        let signedUpText = role;
+        if( signedUpText === "tanks" ){
+          signedUpText = "tank";
+        }
+        if( signedUpText === "heals" ){
+          signedUpText = "healer";
+        }
+        if( signedUpText === "anyRole" ){
+          signedUpText = "any";
+        }
         if( [ "tanks", "dps", "anyRole", "heals" ].filter( x => eventDetails.signups[x].indexOf( command.user.id ) !== -1 ).length === 0 ){
           if( eventDetails.groupSize[role] > eventDetails.signups[role].length ){
             eventDetails.signups[role].push( command.user.id );
             await this.eventDb.Update( { _id : eventDetails._id }, { $set : { signups : eventDetails.signups }} );
-            command.ServerReply( `You have signed up for event ${eventDetails.name} as ${role}.` );
+            command.ServerReply( `You have signed up for event ${eventDetails.name} as ${signedUpText}.` );
             this._UpdateEventPost( eventDetails );
           }
           else{
-            command.ServerReply( `The event ${eventDetails.name} has all ${role} slots full.` );
+            command.ServerReply( `The event ${eventDetails.name} has all ${signedUpText} slots full.` );
           }
         }
         else{
@@ -314,7 +327,17 @@ module.exports = class Events extends Command{
       if( signedUpRole !== null ){
         eventDetails.signups[signedUpRole].splice( eventDetails.signups[signedUpRole].indexOf( command.user.id ), 1 );
         await this.eventDb.Update( { _id : eventDetails._id }, { $set : { signups : eventDetails.signups }} );
-        command.ServerReply( `Your signup for the event ${eventDetails.name} as ${signedUpRole} was canceled` );
+        let signedUpText = signedUpRole;
+        if( signedUpText === "tanks" ){
+          signedUpText = "tank";
+        }
+        if( signedUpText === "heals" ){
+          signedUpText = "healer";
+        }
+        if( signedUpText === "anyRole" ){
+          signedUpText = "any";
+        }
+        command.ServerReply( `Your signup for the event ${eventDetails.name} as ${signedUpText} was canceled` );
         this._UpdateEventPost( eventDetails );
       }
       else{
