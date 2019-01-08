@@ -65,7 +65,7 @@ const helpByRole = {
         roles : "By default this will be *:1,t:1,h:1,d:1 or 1 of each type of role. It is formatted with type:number and seperated with a ',' between types.",
         repeating : "By default this will be once, other possiable values are: weekly, biweekly, triweekly, monthly.",
         "minimum level" : "By default this will be 0, and this is just text to help describe the minimum level requirements to participate in said event.",
-        game : "The game used for the event, by default this is ESO."
+        game : "The game used for the event, by default this is eso."
       },
       example : "tgc createEvent testEvent \"This is a cool event everyone should signup for.\" 12/28/2018 18:15 *:3,h:1 once 0 ESO",
       system : "Event"

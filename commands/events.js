@@ -173,7 +173,7 @@ module.exports = class Events extends Command{
 
   //Test Event Post
   //tgc createEvent "My Event" "Very Special Event" 12/10/2018 13:30 *:12 weekly cp160
-  async createEvent( command, name, text, startingDate, time, roles = "*:1,t:1,h:1,d:1", repeating = "once", minLevel = "0", game = "ESO" ){
+  async createEvent( command, name, text, startingDate, time, roles = "*:1,t:1,h:1,d:1", repeating = "once", minLevel = "0", game = "eso" ){
     repeating = repeating.toLowerCase();
     if( command.AssertRoles( [ "Event Coordinator" ] ) 
     && command.ValidateValue( startingDate, "startingDate", /^\d{1,2}\/\d{1,2}\/\d{4}$/, "##/##/####" )
@@ -184,6 +184,7 @@ module.exports = class Events extends Command{
       let heals = 0;
       let dps = 0;
       let anyRole = 0;
+      game = game.toLowerCase();
       roles.split( "," ).forEach( x => {
         const role = x.trim().split(":")[0];
         const size = x.trim().split(":")[1];
