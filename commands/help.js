@@ -1,3 +1,5 @@
+const crypto = require( "crypto" );
+
 const Command = require( "../abstract/command" );
 const helpByRole = {
   "*" : {
@@ -6,6 +8,12 @@ const helpByRole = {
       description : "You got this message because you used the help command.",
       example : "tgc help",
       system : "Help"
+    },
+    "Web Token" : {
+      command : "webToken",
+      description : "Used to create a temporary token to sign into tgcguild.com.",
+      example : "tgc webToken",
+      system : "Users"
     },
     "Explain Acronym" : {
       command : "wtfis [acronym]",
@@ -99,7 +107,7 @@ const helpByRole = {
 
 module.exports = class Help extends Command{
   async Init(){
-
+    this.guildUsersDb = this.db.Collection( "guildUsers" );
   }
 
   async help( command ){
@@ -145,6 +153,45 @@ module.exports = class Help extends Command{
     }
 
     userHelpOutputArray.forEach( outputMesage => command.ServerReply( outputMesage, 60000 * 10, true ) );
+  }
+
+  async webToken( command ){
+    let userData = await this.guildUsersDb.FindOne( { userId : command.user.id } );
+    if( userData === null ){
+      await this.guildUsersDb.Insert( {
+        userId : command.user.id,
+        username : command.user.username + "#" + command.user.discriminator,
+        password : null,
+        token : null,
+        active : true,
+        keys : []
+      });
+    }
+
+    userData = await this.guildUsersDb.FindOne( { userId : command.user.id } );
+
+    const token = {
+      value : await this._RandomBytes( 64 ),
+      time : new Date()
+    };
+
+    await this.guildUsersDb.Update( { _id : userData._id }, { $set : { token } } );
+
+    command.ServerReply( `Your token is '${token.value}' and is valid for 1 hour, please login at tgcguild.com.`, 60000 * 5 );
+    
+  }
+
+  async _RandomBytes( size ){
+    return new Promise( ( resolve, reject ) => {
+      crypto.randomBytes( 64, ( err, buf ) => {
+        if( err ){
+          reject( err );
+        }
+        else{
+          resolve( buf.toString( "hex" ) );
+        }
+      } );
+    } );
   }
 
   async uberWelcome( command ){

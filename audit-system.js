@@ -48,7 +48,7 @@ module.exports = class AuditSystem{
   }
 
   async UpdateVoiceState( voiceIsOn, user, afk ){
-    const userData = await this.memberAudits.FindOne( { userId : user.id } );
+    const userData = await this.GetUser( user.id );
     if( voiceIsOn && userData.voiceState === false ){
       userData.voiceState = true;
       await this.memberAudits.Update( { _id : userData._id }, { $set : {
@@ -90,35 +90,51 @@ module.exports = class AuditSystem{
     }
   }
 
-  async AddRecentChannel( channelName, user ){
-    const userData = await this.memberAudits.FindOne( { userId : user.id } );
-    userData.recentVoiceActivity.push( { channel: channelName, time : new Date() } );
-    if( userData.recentVoiceActivity.length > maxHistory ){
-      userData.recentVoiceActivity.splice( 0, 1 );
+  async GetUser( userId ){
+    const userData = await this.memberAudits.FindOne( { userId } );
+    if( userData === null ){
+      const member = await this.bot.client.guilds.array()[0].fetchMember( userId );
+      await this.CreateUserRecord( member );
+      return await this.memberAudits.FindOne( { userId : user.id } );
     }
-    await this.memberAudits.Update( { _id : userData._id }, { $set : { recentVoiceActivity : userData.recentVoiceActivity, lastActive : new Date() }});
+
+    return userData;
+  }
+
+  async AddRecentChannel( channelName, user ){
+    const userData = await this.GetUser( user.id );
+    if( userData ){
+      userData.recentVoiceActivity.push( { channel: channelName, time : new Date() } );
+      if( userData.recentVoiceActivity.length > maxHistory ){
+        userData.recentVoiceActivity.splice( 0, 1 );
+      }
+      await this.memberAudits.Update( { _id : userData._id }, { $set : { recentVoiceActivity : userData.recentVoiceActivity, lastActive : new Date() }});
+    }
   }
 
   async AddRecentText( channelName, user ){
-    const userData = await this.memberAudits.FindOne( { userId : user.id } );
-    userData.recentTextActivity.push( { channel: channelName, time : new Date() } );
-    if( userData.recentTextActivity.length > maxHistory ){
-      userData.recentTextActivity.splice( 0, 1 );
+    const userData = await this.GetUser( user.id );
+    if( userData ){
+      userData.recentTextActivity.push( { channel: channelName, time : new Date() } );
+      if( userData.recentTextActivity.length > maxHistory ){
+        userData.recentTextActivity.splice( 0, 1 );
+      }
+      await this.memberAudits.Update( { _id : userData._id }, { $set : { recentTextActivity : userData.recentTextActivity, lastActive : new Date() }});
     }
-    await this.memberAudits.Update( { _id : userData._id }, { $set : { recentTextActivity : userData.recentTextActivity, lastActive : new Date() }});
   }
 
   async ArchiveUserRecord( userId ){
-    const userData = await this.memberAudits.FindOne( { userId } );
-
-    await this.memberAudits.Update( { _id : userData._id }, { $set : {
-      archive : true,
-      leaveDate : new Date()
-    } });
+    const userData = await this.GetUser( userId );
+    if( userData ){
+      await this.memberAudits.Update( { _id : userData._id }, { $set : {
+        archive : true,
+        leaveDate : new Date()
+      } });
+    }
   }
 
   async GetUserRecord( userId ){
-    return await this.memberAudits.FindOne( { userId } );
+    return await this.GetUser( userId );
   }
 
   async CreateUserRecord( member ){

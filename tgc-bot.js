@@ -1,6 +1,8 @@
 const commands = require( './commands' );
 const events = require( './events' );
 const AuditSystem = require( "./audit-system" );
+const express = require('express')
+const app = express();
 
 module.exports = class TGCBot{
   constructor( client, db, timers ){
@@ -12,6 +14,28 @@ module.exports = class TGCBot{
     this.compiledCommands = [];
     this.commands = {};
     this.welcomeList = [];
+    this._SetupWebServerMethods();
+    app.listen( 5630, () => console.log(`Web server listening on port 5630!`))
+  }
+
+  _SetupWebServerMethods(){
+    app.get( '/member/:userId', async ( req, res ) => this._GenerateResponse( res, await this._GetMemberData( req ) ) );
+  }
+
+  _GenerateResponse( res, data ){
+    res.set('Content-Type', 'application/json');
+    res.send( JSON.stringify( data ) );
+  }
+
+  async _GetMemberData( req ){
+    const guild = this.client.guilds.array()[0];
+    const member = await guild.fetchMember( req.params.userId );
+    return {
+      roles : member.roles.array().map( role => role.name ),
+      username : member.user.username + "#" + member.user.discriminator,
+      userId : member.user.id,
+      displayName : member.nickname || member.user.username
+    };
   }
 
   async PerformSetup(){

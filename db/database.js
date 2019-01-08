@@ -27,7 +27,7 @@ module.exports = class Database{
         }
         else {
           console.log("Mongo Database connected.");
-          resolve( client.db( 'tcg' ) );
+          resolve( client.db( 'tgc' ) );
         }
 
       } );
