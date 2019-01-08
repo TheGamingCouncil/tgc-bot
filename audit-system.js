@@ -95,7 +95,7 @@ module.exports = class AuditSystem{
     if( userData === null ){
       const member = await this.bot.client.guilds.array()[0].fetchMember( userId );
       await this.CreateUserRecord( member );
-      return await this.memberAudits.FindOne( { userId : user.id } );
+      return await this.memberAudits.FindOne( { userId } );
     }
 
     return userData;
