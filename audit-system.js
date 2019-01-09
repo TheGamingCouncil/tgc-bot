@@ -90,6 +90,11 @@ module.exports = class AuditSystem{
     }
   }
 
+  async HasUser( userId ){
+    const userData = await this.memberAudits.FindOne( { userId } );
+    return userData !== null;
+  }
+
   async GetUser( userId ){
     const userData = await this.memberAudits.FindOne( { userId } );
     if( userData === null ){

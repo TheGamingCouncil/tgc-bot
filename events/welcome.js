@@ -38,11 +38,12 @@ module.exports = class Welcome extends Event{
 
 
   async Exec( bot, member ){
-    let userAuditRecord = await this.bot.audit.GetUserRecord( member.user.id );
+    let hasRecord = await this.bot.audit.HasUser( member.user.id );
+    await this.bot.audit.GetUserRecord( member.user.id );
     const newMemberSnapy = await this._SaySnappyQuote();
     if( welcomeList.filter( x => x === member.user.id ).length === 0 ){
       welcomeList.push( member.user.id );
-      bot.WriteMessage( "social-lobby", `Welcome${userAuditRecord !== null ? " BACK" : ""} <@${member.user.id}>! ${newMemberSnapy}` );
+      bot.WriteMessage( "social-lobby", `Welcome${hasRecord ? " back" : ""} <@${member.user.id}>! ${newMemberSnapy}` );
       setTimeout( () => welcomeList.splice( welcomeList.indexOf( member.user.id ), 1 ), 60000 * 2 );
     }
 
@@ -53,3 +54,12 @@ module.exports = class Welcome extends Event{
     return "guildMemberAdd";
   }
 };
+
+/*
+< week | Welcome back @User.
+< month | Welcome back @User, you were missed.
+1-3 months | Welcome back @User, I've been waiting.
+3-6 months | Welcome back @User, long time no see.
+6-12 months | Welcome back @User, where ya been buddy.
+> 1 year | DUDE! Look who's back! it's @User.
+*/
