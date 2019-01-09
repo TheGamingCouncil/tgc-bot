@@ -10,7 +10,7 @@ const helpByRole = {
       system : "Help"
     },
     "Web Token" : {
-      command : "webToken",
+      command : "web",
       description : "Used to create a temporary token to sign into tgcguild.com.",
       example : "tgc webToken",
       system : "Users"
@@ -155,7 +155,7 @@ module.exports = class Help extends Command{
     userHelpOutputArray.forEach( outputMesage => command.ServerReply( outputMesage, 60000 * 10, true ) );
   }
 
-  async webToken( command ){
+  async web( command ){
     let userData = await this.guildUsersDb.FindOne( { userId : command.user.id } );
     if( userData === null ){
       await this.guildUsersDb.Insert( {
@@ -177,7 +177,7 @@ module.exports = class Help extends Command{
 
     await this.guildUsersDb.Update( { _id : userData._id }, { $set : { token } } );
 
-    command.ServerReply( `Your token is '${token.value}' and is valid for 1 hour, please login at tgcguild.com.`, 60000 * 5 );
+    command.ServerReply( `Please setup your password below. This message and link are valid for 1 hour, please login at tgcguild.com.\n\nhttp://tgcguild.com/app/login/${command.user.username + "%23" + command.user.discriminator}/${token.value}`, 60000 * 60, true );
     
   }
 
