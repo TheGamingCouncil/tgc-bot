@@ -19,12 +19,27 @@ module.exports = class TGCBot{
   }
 
   _SetupWebServerMethods(){
-    app.get( '/member/:userId', async ( req, res ) => this._GenerateResponse( res, await this._GetMemberData( req ) ) );
+    this.AddWebMethod( "get", '/member/:userId', this._GetMemberData.bind( this ) );
+    this.AddWebMethod( "get", '/members', this._GetMembers.bind( this ) );
   }
 
   _GenerateResponse( res, data ){
     res.set('Content-Type', 'application/json');
     res.send( JSON.stringify( data ) );
+  }
+
+  AddWebMethod( requestMethod, path, method ){
+    app[requestMethod]( path, async ( req, res ) => this._GenerateResponse( res, await method( req ) ) )
+  }
+
+  _GetMembers( req ){
+    const guild = this.client.guilds.array()[0];
+    return guild.members.array().map( member => {
+      return {
+        id : member.user.id,
+        name : member.nickname || member.user.username
+      };
+    });
   }
 
   async _GetMemberData( req ){

@@ -17,6 +17,9 @@ module.exports = class Events extends Command{
     this.timers.AddRunAtTimer( "eventUpdate", 10, 0, ( ) => {
       this._UpdateAllEvents();
     });
+
+    this.bot.AddWebMethod( "get", "/updateEvents", this._UpdateAllEvents.bind( this ) );
+    this.bot.AddWebMethod( "get", "/removeEvent/:tag", this._RemoveEventWeb.bind( this ) );
   }
 
   async _UpdateAllEvents(){
@@ -27,6 +30,8 @@ module.exports = class Events extends Command{
         await this._UpdateEventPost( allEvents[i] );
       }
     }
+
+    return { success : true };
   }
 
   _FrequencyFriendly( frequency ){
@@ -38,8 +43,13 @@ module.exports = class Events extends Command{
       if( eventDetails.repeating === "once" ){
         let channel = this.bot.GetChannelByName( "guild-events" );
         if( channel !== null ){
-          let eventPost = await channel.fetchMessage( eventDetails.postId );
-          eventPost.delete();
+          try{
+            let eventPost = await channel.fetchMessage( eventDetails.postId );
+            eventPost.delete();
+          }
+          catch( ex ){
+            //Throw away//
+          }
           await this.eventDb.Remove( { _id : eventDetails._id } );
           eventDetails._id = null;
         }
@@ -97,75 +107,75 @@ module.exports = class Events extends Command{
     let channel = this.bot.GetChannelByName( "guild-events" );
     if( channel !== null ){
       let eventPost = null;
-      try{
-        eventPost = await channel.fetchMessage( eventDetails.postId );
+      if( eventDetails.postId !== null ){
+        try{
+          eventPost = await channel.fetchMessage( eventDetails.postId );
+        }
+        catch( ex ){
+          //Throw away//
+        }
       }
-      catch( ex ){
-        //Throw away//
+      if( eventPost === null ){
+        eventPost = await this.bot.WriteMessage( "guild-events", `Creating event...` );
+        await this.eventDb.Update( { _id : eventDetails._id }, { $set : { postId : eventPost.id } });
       }
-      if( eventPost !== null ){
-        const member = this.bot.client.guilds.array()[0].members.filter( x => x.id === eventDetails.user ).array()[0] || null;
-        if( member !== null ){
+      const member = this.bot.client.guilds.array()[0].members.filter( x => x.id === eventDetails.user ).array()[0] || null;
+      if( member !== null ){
 
-          let embed = new Discord.RichEmbed()
-            .setTitle( `**${eventDetails.name}** - [ *${eventDetails.tag}* ]` )
-            .setDescription( eventDetails.text )
-            .addField( "Coordinator", `<@${eventDetails.user}>`, true )
-            .addField( "Date/Time", moment( new Date( eventDetails.nextDate ) ).format( "dddd [the] Do" ) + " at " + (""+eventDetails.hour).padStart( 2, '0' ) + ":" + (""+eventDetails.minute).padStart( 2, '0' ) , true )
-            .addField( "Frequency", this._FrequencyFriendly( eventDetails.repeating ), true )
-            .addField( "Available Slots", ( eventDetails.groupSize.tanks + eventDetails.groupSize.heals + eventDetails.groupSize.dps + eventDetails.groupSize.anyRole ) - ( eventDetails.signups.tanks.length + eventDetails.signups.heals.length + eventDetails.signups.dps.length + eventDetails.signups.anyRole.length ), true )
-            .addField( "Minimum Level", eventDetails.minLevel, true )
-            .addField( "Game", eventDetails.game, true )
-            .setTimestamp( new Date( eventDetails.nextDate ) );
+        let embed = new Discord.RichEmbed()
+          .setTitle( `**${eventDetails.name}** - [ *${eventDetails.tag}* ]` )
+          .setDescription( eventDetails.text )
+          .addField( "Coordinator", `<@${eventDetails.user}>`, true )
+          .addField( "Date/Time", moment( new Date( eventDetails.nextDate ) ).format( "dddd [the] Do" ) + " at " + (""+eventDetails.hour).padStart( 2, '0' ) + ":" + (""+eventDetails.minute).padStart( 2, '0' ) , true )
+          .addField( "Frequency", this._FrequencyFriendly( eventDetails.repeating ), true )
+          .addField( "Available Slots", ( eventDetails.groupSize.tanks + eventDetails.groupSize.heals + eventDetails.groupSize.dps + eventDetails.groupSize.anyRole ) - ( eventDetails.signups.tanks.length + eventDetails.signups.heals.length + eventDetails.signups.dps.length + eventDetails.signups.anyRole.length ), true )
+          .addField( "Minimum Level", eventDetails.minLevel, true )
+          .addField( "Game", eventDetails.game, true )
+          .setTimestamp( new Date( eventDetails.nextDate ) );
 
-          const types = { Tanks : "tanks", Healers : "heals", DPS : "dps", "Any Role" : "anyRole" };
+        const types = { Tanks : "tanks", Healers : "heals", DPS : "dps", "Any Role" : "anyRole" };
 
-          const signupHelp = [];
-          Object.keys( types ).forEach( x => {
-            if( eventDetails.groupSize[types[x]] > 0 ){
-              let signups = [];
-            
-              for( let i = 0; i < eventDetails.groupSize[types[x]]; i++ ){
-                let userDetail = "";
-                if( eventDetails.signups[types[x]][i] ){
-                  const memberId = eventDetails.signups[types[x]][i];
-                  const member = this.bot.client.guilds.array()[0].members.filter( x => x.id === memberId ).array()[0] || null;
-                  if( member !== null ){
-                    userDetail = member.nickname || member.user.username;
-                  }
-                  else{
-                    //This user signed up and then left the guild, so there spot will need to be removed and cleaned up. @TODO
-                  }
-                }
-                signups.push( ( i + 1 ) + ") " + userDetail );
-              }
-              let commandType = " " + types[x];
-              if( commandType === " heals" ){
-                commandType = " healer";
-              }
-              if( commandType === " anyRole" ){
-                commandType = "";
-              }
-              if( commandType === " tanks" ){
-                commandType = " tank";
-              }
-              signupHelp.push( "tgc signup " + eventDetails.tag + commandType );
-              embed.addField( x + " Signups " + eventDetails.signups[types[x]].length + " of " + eventDetails.groupSize[types[x]], "```" + signups.join( "\n" ) + "```" )
-            }
-          });
+        const signupHelp = [];
+        Object.keys( types ).forEach( x => {
+          if( eventDetails.groupSize[types[x]] > 0 ){
+            let signups = [];
           
+            for( let i = 0; i < eventDetails.groupSize[types[x]]; i++ ){
+              let userDetail = "";
+              if( eventDetails.signups[types[x]][i] ){
+                const memberId = eventDetails.signups[types[x]][i];
+                const member = this.bot.client.guilds.array()[0].members.filter( x => x.id === memberId ).array()[0] || null;
+                if( member !== null ){
+                  userDetail = member.nickname || member.user.username;
+                }
+                else{
+                  //This user signed up and then left the guild, so there spot will need to be removed and cleaned up. @TODO
+                }
+              }
+              signups.push( ( i + 1 ) + ") " + userDetail );
+            }
+            let commandType = " " + types[x];
+            if( commandType === " heals" ){
+              commandType = " healer";
+            }
+            if( commandType === " anyRole" ){
+              commandType = "";
+            }
+            if( commandType === " tanks" ){
+              commandType = " tank";
+            }
+            signupHelp.push( "tgc signup " + eventDetails.tag + commandType );
+            embed.addField( x + " Signups " + eventDetails.signups[types[x]].length + " of " + eventDetails.groupSize[types[x]], "```" + signups.join( "\n" ) + "```" )
+          }
+        });
+        
 
-          embed.addField( "Command Help", "```" + signupHelp.join( "\n" ) + "\ntgc cancelSignup " + eventDetails.tag + "```")
-          eventPost.edit( embed );
-        }
-        else{
-          //Remove event as it no longer has an active host...
-          await this.eventDb.Remove( { _id : eventDetails._id });
-        }
+        embed.addField( "Command Help", "```" + signupHelp.join( "\n" ) + "\ntgc cancelSignup " + eventDetails.tag + "```")
+        eventPost.edit( embed );
       }
       else{
-        //Remove event as it is no longer an active event...
-        this._NotifyCanceledEvent( eventDetails, "Removed by an Admin" );
+        //Remove event as it no longer has an active host...
+        this._NotifyCanceledEvent( eventDetails, "The event coordinator has left the guild." );
         await this.eventDb.Remove( { _id : eventDetails._id });
       }
     }
@@ -349,21 +359,29 @@ module.exports = class Events extends Command{
     }
   }
 
+  async _RemoveEventWeb( req ){
+    let eventDetails = (await this.eventDb.Find( { tag : req.params.tag } ))[0];
+    let channel = this.bot.GetChannelByName( "guild-events" );
+    if( channel !== null ){
+      let eventPost = await channel.fetchMessage( eventDetails.postId );
+      eventPost.delete();
+      this._NotifyCanceledEvent( eventDetails, req.query.reason );
+      await this.eventDb.Remove( { _id : eventDetails._id } );
+    }
+
+    return { success : true };
+  }
+
   async removeEvent( command, tag, reason = "Not enough intrest" ){
     if( command.AssertRoles( [ "Event Coordinator" ] ) ){
       let eventDetails = (await this.eventDb.Find( { tag } ))[0] || null;
       if( eventDetails !== null ){
-        if( eventDetails.user === command.user.id ){
-          let channel = this.bot.GetChannelByName( "guild-events" );
-          if( channel !== null ){
-            let eventPost = await channel.fetchMessage( eventDetails.postId );
-            eventPost.delete();
-            this._NotifyCanceledEvent( eventDetails, reason );
-            await this.eventDb.Remove( { _id : eventDetails._id } );
-          }
-        }
-        else{
-          command.ServerReply( `Not authorized to remove event, if you are an admin remove the event from the guild-events channel and it will be removed from the database.` );
+        let channel = this.bot.GetChannelByName( "guild-events" );
+        if( channel !== null ){
+          let eventPost = await channel.fetchMessage( eventDetails.postId );
+          eventPost.delete();
+          this._NotifyCanceledEvent( eventDetails, reason );
+          await this.eventDb.Remove( { _id : eventDetails._id } );
         }
       }
       else{
