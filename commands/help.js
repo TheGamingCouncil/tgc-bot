@@ -45,31 +45,6 @@ const helpByRole = {
     }
   },
   "Event Coordinator" : {
-    "Update Event Description" : {
-      command : "updateEventDescription [tag] [description]",
-      description : "This will update an event with the new description, based on the event tag.",
-      params : {
-        tag : "The event tag is listed on the event after the - in the name"
-      },
-      example : "tgc updateEventDescription testEvent \"This is a cooler event, everyone should sign-up for.\"",
-      system : "Event"
-    },
-    "Create an Event" : {
-      command : "createEvent [name] [description] [date] [time] (roles) (repeating) (minimum level) (game)",
-      description : "Creates an event for others to signup for, the event will be placed into the guild-events channel.",
-      params : {
-        name : "The name of the event. The tag will be generated based off this name, and must be unique.",
-        text : "The description of the event, this text will be placed in the event post body.",
-        date : "The first date the event will run, or only date with it is only set to run once. Date must be formatted like so 12/28/2018.",
-        time : "The time the event will run, this is based on EST and uses military time where 13:00 is 1:00PM.",
-        roles : "By default this will be *:1,t:1,h:1,d:1 or 1 of each type of role. It is formatted with type:number and seperated with a ',' between types.",
-        repeating : "By default this will be once, other possiable values are: weekly, biweekly, triweekly, monthly.",
-        "minimum level" : "By default this will be 0, and this is just text to help describe the minimum level requirements to participate in said event.",
-        game : "The game used for the event, by default this is eso."
-      },
-      example : "tgc createEvent testEvent \"This is a cool event everyone should signup for.\" 12/28/2018 18:15 *:3,h:1 once 0 ESO",
-      system : "Event"
-    },
     "Remove an Event" : {
       command : "removeEvent [tag] (reason)",
       description : "Removes the event and notifies all the signed up users that the event was canceled because of reasons.",
@@ -82,26 +57,6 @@ const helpByRole = {
     }
   },
   "Librarian" : {
-    "Add/Update Acronym in Library" : {
-      command : "updateLibrary [acronym] [description] [hasVetNormalSwitch]",
-      description : "Updates an acronym in the library of acronyms that can be decribed with the ? command. If once does not exist it is created.",
-      params : {
-        acronym : "The acronym you want to describe the meaning of. This is not case sensitive.",
-        description : "The description used to describe the acronym to users who ask to know what it is.",
-        hasVetNormalSwitch : "Tells if the acronym starts with a n and a v for vetern and normal modes of play. Acceptable values are true and false."
-      },
-      example : "tgc updateLibrary vCR \"Veteran Cloud Rest\" true",
-      system : "Library"
-    },
-    "Remove Acronym from Library" : {
-      command : "removeLibrary [acronym]",
-      description : "Removes an acronym from the library of acronyms.",
-      params : {
-        acronym : "The acronym you want to remove the meaning of. This is not case sensitive."
-      },
-      example : "tgc removeLibrary vCR",
-      system : "Library"
-    }
   }
 };
 
@@ -177,7 +132,7 @@ module.exports = class Help extends Command{
 
     await this.guildUsersDb.Update( { _id : userData._id }, { $set : { token } } );
 
-    command.ServerReply( `Please setup your password below. This message and link are valid for 1 hour, please login at tgcguild.com.\n\nhttp://tgcguild.com/app/login/${command.user.username + "%23" + command.user.discriminator}/${token.value}`, 60000 * 60, true );
+    command.ServerReply( `Please setup your password below. This message and link are valid for 1 hour, please login at tgcguild.com.\n\nhttp://tgcguild.com/app/login/${encodeURI(command.user.username) + "%23" + command.user.discriminator}/${token.value}`, 60000 * 60, true );
     
   }
 

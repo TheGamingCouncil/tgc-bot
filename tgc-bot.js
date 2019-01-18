@@ -79,7 +79,7 @@ module.exports = class TGCBot{
     const commandMethods = Object.getOwnPropertyNames( command.__proto__ );
     for( let i = 0; i < commandMethods.length; i++ ){
       if( !commandMethods[i].startsWith( "_" ) && commandMethods[i] !== "constructor" && commandMethods[i] !== "Init" ){
-        this.commands[commandMethods[i]] = { method : command[commandMethods[i]], object : command };
+        this.commands[commandMethods[i].toLowerCase()] = { method : command[commandMethods[i]], object : command };
       }
     }
   }

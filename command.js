@@ -5,7 +5,7 @@ module.exports = class Command{
     this.message = message;
     this.content = content;
     this.args = this.ExtractArguments( content );
-    this.command = this.args[0];
+    this.command = this.args[0].toLowerCase();
     this.args.splice( 0, 1 );
   }
 

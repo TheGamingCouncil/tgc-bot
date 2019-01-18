@@ -10,7 +10,7 @@ module.exports = class Commands extends Event{
   async Exec( bot, message ){
     if( !message.author.bot && message.type !== "GUILD_MEMBER_JOIN" ){
       this.bot.audit.AddRecentText( message.channel.name, message.author );
-      if( message.content.startsWith( "tgc" ) ){
+      if( message.content.toLowerCase().startsWith( "tgc" ) ){
         await message.delete();
         const command = new Command( bot, message.author, message, message.content.substring( 4 ) );
         if( this.commands[command.command] ){
