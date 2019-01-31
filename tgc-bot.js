@@ -3,6 +3,7 @@ const events = require( './events' );
 const AuditSystem = require( "./audit-system" );
 const express = require('express')
 const app = express();
+app.use(express.json())
 
 module.exports = class TGCBot{
   constructor( client, db, timers ){
@@ -21,6 +22,7 @@ module.exports = class TGCBot{
   _SetupWebServerMethods(){
     this.AddWebMethod( "get", '/member/:userId', this._GetMemberData.bind( this ) );
     this.AddWebMethod( "get", '/members', this._GetMembers.bind( this ) );
+    this.AddWebMethod( "get", '/ingame', this._PostInGameMessage.bind( this ) );
   }
 
   _GenerateResponse( res, data ){
@@ -30,6 +32,12 @@ module.exports = class TGCBot{
 
   AddWebMethod( requestMethod, path, method ){
     app[requestMethod]( path, async ( req, res ) => this._GenerateResponse( res, await method( req ) ) )
+  }
+
+  async _PostInGameMessage( req ){
+    let channel = this.GetChannelByName( "in-game-chatter" );
+    await channel.send( `**${req.query.user}**: ${req.query.message.replace( /`/gi, "\\`" )}` );
+    return { success : true };
   }
 
   _GetMembers( req ){
