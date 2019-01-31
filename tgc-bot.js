@@ -42,7 +42,7 @@ module.exports = class TGCBot{
     else if( req.query.type === "guild" ){
       channel = this.GetChannelByName( "in-game-chatter" );
     }
-    await channel.send( `**${req.query.user}**: ${req.query.message.replace( /`/gi, "\\`" )}` );
+    channel.send( `**${req.query.user}**: ${req.query.message.replace( /`/gi, "\\`" )}` );
     return { success : true };
   }
 
