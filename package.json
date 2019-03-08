@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "name": "TheGamingCouncilDiscordBot",
   "dependencies": {
-    "command-daemon": "0.0.10",
+    "command-daemon": "0.0.12",
     "discord.js": "^11.4.2",
     "express": "^4.16.4",
     "moment": "^2.22.2",

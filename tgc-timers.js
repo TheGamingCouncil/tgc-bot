@@ -36,6 +36,10 @@ module.exports = class TGCTimers{
     } );
   }
 
+  async HasTimerMethod( method ){
+    return ( await this.timerDb.Find( { method } ) ).length > 0;
+  }
+
   _AddDefaultTimers(){
     this.AddTimerMethod( "DeleteDM", async ( item ) => {
       const user = await this.client.users.filter( x => x.id === item.userId ).array()[0] || null;

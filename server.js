@@ -1,13 +1,13 @@
 const spawn = require('child_process').spawn;
 
 require( "command-daemon" ).startup( {
+  config: __dirname + "/config.json",
   cli : [
     
   ],
   services : [
     {
       name : "discord-bot",
-      pushDebug : true,
       execute : ( bootstrap ) => {
         require( './index' );
       }
