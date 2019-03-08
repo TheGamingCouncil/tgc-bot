@@ -19,6 +19,7 @@ module.exports = class AutoMod extends Event{
     }
 
     if( message.content.startsWith( "!" ) && message.channel.name !== "bot-commands" ){
+      bot.DmUser( message.author, `Bot commands other then the tgc bot commands are only allowed to be posted in the 'bot-commands' channel. Please post any bot commands that are not tgc bot commands in 'bot-commands'.` );
       await message.delete();
     }
 
