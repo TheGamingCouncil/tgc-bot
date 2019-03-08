@@ -151,7 +151,7 @@ module.exports = class Events extends Command{
     priorEventPosts = priorEventPosts.reverse();
     let isInOrder = true;
     for( let i = 0; i < allEvents.length; i++ ){
-      if( priorEventPosts[i].id !== allEvents[i].postId ){
+      if( !priorEventPosts[i] || ( priorEventPosts[i].id !== allEvents[i].postId ) ){
         isInOrder = false;
         break;
       }
