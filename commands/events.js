@@ -109,7 +109,7 @@ module.exports = class Events extends Command{
     }
 
     for( let i = 0; i < todaysEvents.length; i++ ){
-      if( moment().subtract( 1, "hours" ).valueOf() <= moment( todaysEvents[i].nextDate ).subtract( 1, "hours" ).valueOf()
+      if( moment().valueOf() >= moment( todaysEvents[i].nextDate ).subtract( 1, "hours" ).valueOf()
         && moment( todaysEvents[i].nextDate ).valueOf() > moment().valueOf() ){
         let signedupUsers = {};
         todaysEvents[i].signups.reserve = todaysEvents[i].signups.reserve || [];
@@ -140,25 +140,45 @@ module.exports = class Events extends Command{
     }
   }
 
+  async _ReloadChannel(){
+    let priorEventPosts = await this.bot.SuperFetch( this.bot.GetChannelByName( "guild-events" ), 100 );
+    await Promise.all( priorEventPosts.map( async post => {
+      try{
+        await post.delete();
+      }
+      catch( ex ){ }
+    } ) );
+    let buttons = [
+      "signup_tank_role",
+      "signup_dps_role",
+      "signup_healer_role",
+      "signup_any_role",
+      "signup_reserve_role",
+      "cancel_signup"
+    ].map( button => `${this.bot.client.emojis.find(emoji => emoji.name === button)} - ${button.replace( /_/gi, " " )}` );
+    await this.bot.WriteMessage( "guild-events", `**Legend**\n${buttons.join("\n")}` );
+  }
+
   async _UpdateAllEvents(){
     let priorEventPosts = await this.bot.SuperFetch( this.bot.GetChannelByName( "guild-events" ), 100 );
+    priorEventPosts = priorEventPosts.reverse();
+    priorEventPosts.splice( 0, 1 );
     let allEvents = await this.eventDb.Find( {}, { sort : { nextDate : 1 } });
 
-    if( priorEventPosts.length !== allEvents.length ){
-      await Promise.all( priorEventPosts.map( async post => await post.delete() ) );
-    }
-
-    priorEventPosts = priorEventPosts.reverse();
     let isInOrder = true;
-    for( let i = 0; i < allEvents.length; i++ ){
-      if( !priorEventPosts[i] || ( priorEventPosts[i].id !== allEvents[i].postId ) ){
-        isInOrder = false;
-        break;
+    if( priorEventPosts.length !== allEvents.length ){
+     isInOrder = false;
+    }
+    if( isInOrder ){
+      for( let i = 0; i < allEvents.length; i++ ){
+        if( !priorEventPosts[i] || ( priorEventPosts[i].id !== allEvents[i].postId ) ){
+          isInOrder = false;
+          break;
+        }
       }
     }
-
     if( !isInOrder ){
-      await Promise.all( priorEventPosts.map( async post => await post.delete() ) );
+      await this._ReloadChannel();
     }
 
     for( let i = 0; i < allEvents.length; i++ ){
@@ -216,9 +236,9 @@ module.exports = class Events extends Command{
           .setTitle( `**${eventDetails.name}** - [ *${eventDetails.tag}* ]` )
           .setDescription( eventDetails.text )
           .addField( "Coordinator", `<@${eventDetails.user}>`, true )
-          .addField( "Available Slots", ( eventDetails.groupSize.tanks + eventDetails.groupSize.heals + eventDetails.groupSize.dps + eventDetails.groupSize.anyRole ) - ( eventDetails.signups.tanks.length + eventDetails.signups.heals.length + eventDetails.signups.dps.length + eventDetails.signups.anyRole.length ), true )
           .addField( "Minium Level", eventDetails.minLevel , true )
-          .setTimestamp( new Date( eventDetails.nextDate ) );
+          .addField( "Date/Time", moment( new Date( eventDetails.nextDate ) ).format( "ddd [the] Do" ) + " at " + (""+eventDetails.hour).padStart( 2, '0' ) + ":" + (""+eventDetails.minute).padStart( 2, '0' ) , true )
+          .addField( "Frequency", this._FrequencyFriendly( eventDetails.repeating ), true )
 
         const types = { "Any Role" : "anyRole", Tanks : "tanks", Healers : "heals", DPS : "dps" };
 
@@ -229,7 +249,10 @@ module.exports = class Events extends Command{
               signupHelp.push( this._NormalizeReactionName( types[x] ) );
             }
           }
+          embed.addField( x + " Signups", eventDetails.signups[types[x]].length + " of " + eventDetails.groupSize[types[x]], true )
         });
+        eventDetails.signups.reserve = eventDetails.signups.reserve || [];
+        embed.addField( "Reserve Signups", eventDetails.signups.reserve.length, true )
         
         let buttons = {
           signup_tank_role: this.bot.client.emojis.find(emoji => emoji.name === "signup_tank_role"),
