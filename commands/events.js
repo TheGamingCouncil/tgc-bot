@@ -14,6 +14,7 @@ const frequencyHashSwitch = {
 module.exports = class Events extends Command{
   async Init(){
     this.eventDb = this.db.Collection( "events" );
+    this._updatingEvents = false;
 
     this.timers.AddTimerMethod( "DailyEventRun", async () => {
       await this._UpdateAllEventTimers();
@@ -160,32 +161,42 @@ module.exports = class Events extends Command{
   }
 
   async _UpdateAllEvents(){
-    let priorEventPosts = await this.bot.SuperFetch( this.bot.GetChannelByName( "guild-events" ), 100 );
-    priorEventPosts = priorEventPosts.reverse();
-    priorEventPosts.splice( 0, 1 );
-    let allEvents = await this.eventDb.Find( {}, { sort : { nextDate : 1 } });
+    if( !this._updatingEvents ){
+      this._updatingEvents = true;
+      try{
+        let priorEventPosts = await this.bot.SuperFetch( this.bot.GetChannelByName( "guild-events" ), 100 );
+        priorEventPosts = priorEventPosts.reverse();
+        priorEventPosts.splice( 0, 1 );
+        let allEvents = await this.eventDb.Find( {}, { sort : { nextDate : 1 } });
 
-    let isInOrder = true;
-    if( priorEventPosts.length !== allEvents.length ){
-     isInOrder = false;
-    }
-    if( isInOrder ){
-      for( let i = 0; i < allEvents.length; i++ ){
-        if( !priorEventPosts[i] || ( priorEventPosts[i].id !== allEvents[i].postId ) ){
-          isInOrder = false;
-          break;
+        let isInOrder = true;
+        if( priorEventPosts.length !== allEvents.length ){
+        isInOrder = false;
+        }
+        if( isInOrder ){
+          for( let i = 0; i < allEvents.length; i++ ){
+            if( !priorEventPosts[i] || ( priorEventPosts[i].id !== allEvents[i].postId ) ){
+              isInOrder = false;
+              break;
+            }
+          }
+        }
+        if( !isInOrder ){
+          await this._ReloadChannel();
+        }
+
+        for( let i = 0; i < allEvents.length; i++ ){
+          await this._UpdateEventData( allEvents[i] );
+          if( allEvents[i]._id !== null ){
+            await this._UpdateEventPost( allEvents[i] );
+          }
         }
       }
-    }
-    if( !isInOrder ){
-      await this._ReloadChannel();
-    }
-
-    for( let i = 0; i < allEvents.length; i++ ){
-      await this._UpdateEventData( allEvents[i] );
-      if( allEvents[i]._id !== null ){
-        await this._UpdateEventPost( allEvents[i] );
+      catch( ex ){
+        console.error( "Error when applying update to event system", ex );
       }
+
+      this._updatingEvents = false;
     }
 
     return { success : true };

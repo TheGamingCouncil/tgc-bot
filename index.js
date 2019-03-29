@@ -9,7 +9,6 @@ const TGCTimers = require( "./tgc-timers" );
 
 const Discord = require("discord.js");
 const client = new Discord.Client();
-console.log( config );
 client.on( "error", ( error ) => {
   console.error( "Discord bot error", error );
 } );

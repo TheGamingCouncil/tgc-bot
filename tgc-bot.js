@@ -22,7 +22,7 @@ module.exports = class TGCBot{
   _SetupWebServerMethods(){
     this.AddWebMethod( "get", '/member/:userId', this._GetMemberData.bind( this ) );
     this.AddWebMethod( "get", '/members', this._GetMembers.bind( this ) );
-    this.AddWebMethod( "get", '/ingame', this._PostInGameMessage.bind( this ) );
+    //this.AddWebMethod( "get", '/ingame', this._PostInGameMessage.bind( this ) );
   }
 
   _GenerateResponse( res, data ){
@@ -34,7 +34,7 @@ module.exports = class TGCBot{
     app[requestMethod]( path, async ( req, res ) => this._GenerateResponse( res, await method( req ) ) )
   }
 
-  async _PostInGameMessage( req ){
+  /*async _PostInGameMessage( req ){
     let channel = null;
     if( req.query.type === "officer" ){
       channel = this.GetChannelByName( "in-game-officer-chatter" );
@@ -44,7 +44,7 @@ module.exports = class TGCBot{
     }
     channel.send( `**${req.query.user}**: ${req.query.message.replace( /`/gi, "\\`" )}` );
     return { success : true };
-  }
+  }*/
 
   _GetMembers( req ){
     const guild = this.client.guilds.array()[0];
@@ -107,7 +107,7 @@ module.exports = class TGCBot{
   }
 
   GetChannelByName( name ){
-    return this.client.channels.filter( x => x.name === name ).array()[0] || null;
+    return this.client.channels.filter( x => x.name.endsWith( name ) ).array()[0] || null;
   }
 
   GetUserByName( name ){
