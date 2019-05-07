@@ -107,7 +107,7 @@ module.exports = class TGCBot{
   }
 
   GetChannelByName( name ){
-    return this.client.channels.filter( x => x.name.endsWith( name ) ).array()[0] || null;
+    return this.client.channels.filter( x => x.name && x.name.endsWith( name ) ).array()[0] || null;
   }
 
   GetUserByName( name ){
@@ -124,13 +124,19 @@ module.exports = class TGCBot{
     // channel.messages[0] will get oldest message
     let messages = channel.messages.array();
     let eof = false;
+    let sendAmount = 0;
     while( messages.length < limit && !eof ){
+      console.log( channel.name, "request for data" );
+      if( sendAmount * 100 > limit ){
+        return channel.messages.array();
+      }
       let before = channel.messages.lastKey();
       let newMessages = await channel.fetchMessages( { limit : 100, before } );
       if( newMessages.array().length === 0 ){
         eof = true;
       }
       messages = channel.messages.array();
+      sendAmount++;
     }
     
     return messages;

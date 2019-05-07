@@ -31,13 +31,16 @@ module.exports = class Welcome extends Event{
     const optionChannel = this.bot.GetChannelByName( "bot-sayings" );
     await this.bot.SuperFetch( optionChannel, 1000 );
     const allMessages = optionChannel.messages.array();
+    console.log( "channel length", allMessages.length );
     const message = allMessages[Math.floor(Math.random() * allMessages.length )];
+    console.log( "outmessage", message );
     return message.content;
   }
 
 
 
   async Exec( bot, member ){
+    console.log( "Request for quote" );
     let hasRecord = await this.bot.audit.HasUser( member.user.id );
     await this.bot.audit.GetUserRecord( member.user.id );
     const newMemberSnapy = await this._SaySnappyQuote();
@@ -45,6 +48,9 @@ module.exports = class Welcome extends Event{
       welcomeList.push( member.user.id );
       bot.WriteMessage( "social-lobby", `Welcome${hasRecord ? " back" : ""} <@${member.user.id}>! ${newMemberSnapy}` );
       setTimeout( () => welcomeList.splice( welcomeList.indexOf( member.user.id ), 1 ), 60000 * 2 );
+    }
+    else{
+      console.log( "Member already got messaged." );
     }
 
     await this.bot.audit.CreateUserRecord( member );

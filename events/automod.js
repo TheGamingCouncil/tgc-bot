@@ -26,7 +26,8 @@ module.exports = class AutoMod extends Event{
       "dungeonsanddragons",
       "swtor",
       "staff-lounge",
-      "lottery-roles",
+      "lottery-rolls",
+      "the-council-table",
       "bot-commands"
     ];
   }
