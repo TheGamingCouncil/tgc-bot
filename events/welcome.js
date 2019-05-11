@@ -46,7 +46,9 @@ module.exports = class Welcome extends Event{
     const newMemberSnapy = await this._SaySnappyQuote();
     if( welcomeList.filter( x => x === member.user.id ).length === 0 ){
       welcomeList.push( member.user.id );
-      bot.WriteMessage( "social-lobby", `Welcome${hasRecord ? " back" : ""} <@${member.user.id}>! ${newMemberSnapy}` );
+      bot.WriteMessage( "welcome", `Welcome${hasRecord ? " back" : ""} <@${member.user.id}>! ${newMemberSnapy}` );
+      let role = member.guild.roles.find(role => role.name === "Untagged");
+      member.addRole( role );
       setTimeout( () => welcomeList.splice( welcomeList.indexOf( member.user.id ), 1 ), 60000 * 2 );
     }
     else{

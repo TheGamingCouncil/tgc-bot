@@ -5,7 +5,7 @@ module.exports = class AutoMod extends Event{
 
     this.userMessageAutoRemove = [
       "guild-events",
-      "lottery-roles",
+      "lottery-rolls",
       "combat-metrics-screenshots"
     ];
     this.userMediaAutoRemove = [
