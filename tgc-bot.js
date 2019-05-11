@@ -3,6 +3,7 @@ const events = require( './events' );
 const AuditSystem = require( "./audit-system" );
 const express = require('express')
 const app = express();
+const moment = require( "moment" );
 app.use(express.json())
 
 module.exports = class TGCBot{
@@ -22,7 +23,7 @@ module.exports = class TGCBot{
   _SetupWebServerMethods(){
     this.AddWebMethod( "get", '/member/:userId', this._GetMemberData.bind( this ) );
     this.AddWebMethod( "get", '/members', this._GetMembers.bind( this ) );
-    //this.AddWebMethod( "get", '/ingame', this._PostInGameMessage.bind( this ) );
+    this.AddWebMethod( "post", '/ingame', this._PostInGameMessage.bind( this ) );
   }
 
   _GenerateResponse( res, data ){
@@ -34,17 +35,17 @@ module.exports = class TGCBot{
     app[requestMethod]( path, async ( req, res ) => this._GenerateResponse( res, await method( req ) ) )
   }
 
-  /*async _PostInGameMessage( req ){
+  async _PostInGameMessage( req ){
     let channel = null;
-    if( req.query.type === "officer" ){
+    if( req.body.type === "officer" ){
       channel = this.GetChannelByName( "in-game-officer-chatter" );
     }
-    else if( req.query.type === "guild" ){
+    else if( req.body.type === "guild" ){
       channel = this.GetChannelByName( "in-game-chatter" );
     }
-    channel.send( `**${req.query.user}**: ${req.query.message.replace( /`/gi, "\\`" )}` );
+    channel.send( `**${req.body.user}:@${moment(req.body.timestamp).format("HH:MM")}**: ${req.body.message.replace( /`/gi, "\\`" )}` );
     return { success : true };
-  }*/
+  }
 
   _GetMembers( req ){
     const guild = this.client.guilds.array()[0];
