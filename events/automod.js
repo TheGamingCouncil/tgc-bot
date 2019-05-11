@@ -1,4 +1,6 @@
 const Event = require( "../abstract/event" );
+const http = require( "http" );
+const config = require( "../config" );
 
 module.exports = class AutoMod extends Event{
   async Init(){
@@ -82,6 +84,50 @@ module.exports = class AutoMod extends Event{
       bot.DmUser( message.author, `Messages are not allowed to be posted in '${message.channel.name}'.` );
       return;
     }
+
+    if( message.channel.name === "in-game-chatter" || message.channel.name === "in-game-officer-chatter" ){
+      await this._postMessageToGame( {
+        type: "chat",
+        eventProperties: {
+          username: ( message.member || {} ).nickname || message.author.username,
+          message: message.content,
+          type: message.channel.name === "in-game-chatter" ? "guild" : "officer"
+        }
+      });
+    }
+  }
+
+  async _postMessageToGame( data ){
+    data.token = config.webtoken;
+    return new Promise( ( resolve, reject ) => {
+      let request = http.request( {
+        hostname: "tgcguild.com",
+        port: 80,
+        path: "/api/botEvents",
+        method: 'POST',
+        headers: {
+          'Content-Type': "application/json",
+          'Content-Length': JSON.stringify( data ).length
+        }
+      }, ( res ) => {
+        res.setEncoding('utf8');
+        let rawData = '';
+        res.on('data', (chunk) => { rawData += chunk; });
+        res.on('end', () => {
+          try {
+            const parsedData = JSON.parse(rawData);
+            resolve( parsedData );
+          } catch (e) {
+            console.error( rawData );
+            reject( e );
+          }
+        });
+      } ).on( 'error', ( e ) => {
+        reject( e );
+      });
+      request.write( JSON.stringify( data ) );
+      request.end();
+    } );
   }
 
   get eventType(){
