@@ -110,6 +110,13 @@ module.exports = class Help extends Command{
     userHelpOutputArray.forEach( outputMesage => command.ServerReply( outputMesage, 60000 * 10, true ) );
   }
 
+  async dbclear( command ){
+    let dbToClear = this.db.Collection( "botEvents" );
+    let removedDocuments = await dbToClear.RemoveAll( { type : "chat" } );
+    command.ServerReply( `Database cleared ${removedDocuments} records.`, 60000 * 2, true );
+    
+  }
+
   async web( command ){
     let userData = await this.guildUsersDb.FindOne( { userId : command.user.id } );
     if( userData === null ){

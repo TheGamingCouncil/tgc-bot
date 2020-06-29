@@ -8,18 +8,19 @@ module.exports = class AutoMod extends Event{
     this.userMessageAutoRemove = [
       "guild-events",
       "lottery-rolls",
-      "combat-metrics-screenshots"
+      "combat-metrics-screenshots",
+      "📷gallery",
     ];
     this.userMediaAutoRemove = [
       "social-lobby",
       "guild-events",
       "needed-item-requests",
-      "removed-for-inactivity",
-      "officer-business"
+      "removed-for-inactivity"
     ];
     this.userBotAllowed = [
       "bot-commands",
-      "bot-trashbox"
+      "bot-trashbox",
+      "dungeonsanddragons"
     ];
     this.kawaiiBotAllowed = [
       "raidgroup-alpha",

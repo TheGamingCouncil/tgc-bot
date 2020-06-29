@@ -49,6 +49,19 @@ module.exports = class Collection{
     });
   }
 
+  RemoveAll( selector = {} ){
+    return new Promise( ( resolve, reject ) => {
+      this.collection.deleteMany( selector, ( err, numberOfRemovedDocs ) => {
+        if( !err ){
+          resolve( numberOfRemovedDocs );
+        }
+        else{
+          reject( err );
+        }
+      } );
+    });
+  }
+
   Insert( document, options = {} ) {
     return new Promise( ( resolve, reject ) => {
       this.collection.insertOne( document, options, ( err, result ) => {
